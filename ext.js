@@ -13,7 +13,7 @@ var ext;
             method = method.toUpperCase();
             ext.ajax.host && (url = ext.ajax.host + url);
             //if(args&&(new Set(["PUT","POST"])).has(method)){
-            if (args && (method == "PUT" || method == "POST")) {
+            if (args && (method == "PUT")) {
                 var mps = [];
                 for (let i in args) {
                     args.hasOwnProperty(i) && mps.push(encodeURIComponent(i) + "=" + encodeURIComponent(x[i]));
@@ -54,8 +54,8 @@ var ext;
                                 ext.delay(1)
                             ),
                                 xml.status)
-                    )
-                )
+    )
+        )
                 //cth(xml)
             };
             xml.send(method == "GET" ? null : cnt || null);

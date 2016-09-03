@@ -1,5 +1,5 @@
 "use strict";
-var ls = {//window.addEventListener("storage",function(e){console.log(e)},false)
+var ls = {
     get: function (key) {
         key = localStorage.getItem(key);
         return key ? JSON.parse(key) : null;
@@ -224,7 +224,32 @@ var dbs = {
                 console.log("Nothing...")
             }
         },
-        clean: function () { }
+        img: function (id) {
+            if (ls.get("sina")[id]) {
+                var dat = [];
+                iDB.obj("sina", id, "readonly").then(function (obj) {
+                    obj = obj.openCursor();
+                    var nxt = function (evt) {
+                        evt = evt.target.result;
+                        if (evt) {
+
+                            /豆瓣/.test(evt.value.src) || evt.value.pics && (dat = dat.concat(evt.value.pics))
+
+                            evt.continue();
+                            evt.onsuccess = nxt;
+                        } else {
+                            ext.tabs.create({
+                                url: "data:text/html," + dat.join("<br />")
+                            })
+                        }
+                    }
+                    obj.onsuccess = nxt;
+
+                })
+            } else {
+                console.log("Nothing...")
+            }
+        }
     }
 };
 var iDB = {
@@ -309,6 +334,5 @@ var iDB = {
 };
 
 (function () {
-
 
 })();
