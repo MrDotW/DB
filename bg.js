@@ -37,16 +37,23 @@ var dbs = {
             ls.get("sina") || ls.set("sina", {});
             ext.ajax("http://m.weibo.cn/home/me?format=cards").then(
                 function (res) {
-                    res = JSON.parse(res.response)[0].card_group[0].user;
-                    iDB.init("sina", res.id, 1).then(function () {
-                        var f = ls.get("sina")[res.id];
+                    res = JSON.parse(res.response)[0].card_group[0].user.id;
+                    iDB.init("sina", res, 1).then(function () {
+                        var f = ls.get("sina")[res];
                         if (!f) {
                             f = {};
-                            f[res.id] = [1, false, Math.ceil(res.mblogNum / 10)];
+                            f[res] = [1, false, Math.ceil(res.mblogNum / 10)];
                             ls.put("sina", f);
-                            f = f[res.id];
+                            f = f[res];
                         }
-                        dbs.sina.get(res.id, f[0], f[2], f[1])
+                        dbs.sina.get(res, f[0], f[2], f[1]);
+                        f = ls.get("sina_cmts");
+                        if (f && f[res] && f[res].length) {
+                            f[res].forEach(i => setTimeout(function () {
+                                dbs.sina.cmtget(res, i)
+                            }, ext.delay(1)));
+
+                        }
 
                     })
                 },
@@ -87,13 +94,21 @@ var dbs = {
                 return re
             }
         },
-        cmtget: function (uid, cid, page = 1, cmts = { id: uid, cmts: [] }) {
+        cmtget: function (uid, cid, page = 1, cmts = { id: cid, cmts: [] }) {
             var l = ls.get("sina_cmts") || {}, s = new Set(l[uid] || null);
             if (!s.has(cid)) {
                 s.add(cid);
                 l[uid] = Array.from(s);
                 ls.set("sina_cmts", l);
             }
+            var del = function () {
+                var l = ls.get("sina_cmts") || {}, s = new Set(l[uid] || null);
+                if (s.has(cid)) {
+                    s.delete(cid);
+                    l[uid] = Array.from(s);
+                    ls.set("sina_cmts", l);
+                }
+            };
 
 
             ext.ajax(`http://m.weibo.cn/${uid}/${cid}/rcMod?format=cards&type=comment&hot=1&page=${page}`).then(
@@ -120,17 +135,14 @@ var dbs = {
                         });
                         if (xml.loadMore) {
                             (setTimeout(function () {
-                                cmtget(uid, cid, ++page, cmts);
+                                dbs.sina.cmtget(uid, cid, ++page, cmts);
                             }, ext.delay(3)))
                         } else {
                             iDB.put("sina", uid, cmts);
-                            var l = ls.get("sina_cmts") || {}, s = new Set(l[uid] || null);
-                            if (s.has(cid)) {
-                                s.delete(cid);
-                                l[uid] = Array.from(s);
-                                ls.set("sina_cmts", l);
-                            }
+                            del()
                         }
+                    } else {
+                        del()
                     }
                 });
 
