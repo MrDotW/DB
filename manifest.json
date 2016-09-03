@@ -1,0 +1,26 @@
+{
+    "background": {
+        "persistent": false,
+        "scripts": [
+            "ext.js",
+            "bg.js"
+        ]
+    },
+    "description": "Backup online life.",
+    "icons": {
+        "128": "/img/icn-64.png",
+        "16": "/img/icn-64.png",
+        "48": "/img/icn-64.png"
+    },
+    "homepage_url": "https://github.com/MrDotW/DB",
+    "author": "weiiihaooo",
+    "options_page": "opt.html",
+    "manifest_version": 2,
+    "minimum_chrome_version": "54",
+    "name": "Feedly Notification",
+    "permissions": [
+        "*://*.weibo.cn/*",
+        "cookies"
+    ],
+    "version": "0.1"
+}
