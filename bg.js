@@ -196,13 +196,13 @@ var dbs = {
                 })
             }
         },
-        out: function (id,reg,...keys) {
+        out: function (id, reg, ...keys) {
             var usr = ls.get("sina")[id];
             if (usr) {
                 var dat = {
                     usr: [id, usr[2], new Date().toJSON()]
                 };
-                iDB.getAll("sina", dat.usr[0],reg,keys).then(o => {
+                iDB.getAll("sina", dat.usr[0], reg, keys).then(o => {
                     dat.mblog = o;
                     ext.tabs.create({
                         url: "data:application/json," + JSON.stringify(dat)
@@ -217,25 +217,12 @@ var dbs = {
         img: function (id) {
 
             if (ls.get("sina")[id]) {
-                var dat = [];
-                iDB.obj("sina", id, "readonly").then(function (obj) {
-                    obj = obj.openCursor();
-                    var nxt = function (evt) {
-                        evt = evt.target.result;
-                        if (evt) {
-
-                            /豆瓣/.test(evt.value.src) || evt.value.pics && (dat = dat.concat(evt.value.pics))
-
-                            evt.continue();
-                            evt.onsuccess = nxt;
-                        } else {
-                            ext.tabs.create({
-                                url: "data:text/html," + dat.join("<br />")
-                            })
-                        }
-                    }
-                    obj.onsuccess = nxt;
-
+                iDB.getAll("sina", id, null, "pics").then(function (data) {
+                    var imgs = [], reg = /豆瓣/;
+                    data.forEach(i => reg.test(i.src) || (imgs = imgs.concat(i.pics)))
+                    ext.tabs.create({
+                        url: "data:text/html," + data.join("<br />")
+                    })
                 })
             } else {
                 console.log("Nothing...")
@@ -332,15 +319,9 @@ var iDB = {
     get: function (dbnm, tb, keys) {
         return new Promise(function (thn, cth) {
             iDB.obj(dbnm, tb, "readonly").then(obj => {
-                var res = {}, l;
-                if (Array.isArray(keys)) {
-                    l = keys.length;
-                } else {
-                    l = 1;
-                    keys = [keys];
-                }
+                keys = iDB.d(keys);
+                var res = {}, l = keys.length;
                 var n = 0;
-
                 for (let i in keys) {
                     obj.get(keys[i]).onsuccess = function (evt) {
                         res[i] = evt.target.result;
