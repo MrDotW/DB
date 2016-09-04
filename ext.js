@@ -62,8 +62,8 @@ var ext;
         })
     };
     ext.delay = function (i) {
-        i = i || ext.delay.d || 1;
-        return (Math.random() + 1) * 1000 * i
+        i = (i || 1) * ext.delay.d;
+        return Math.ceil((Math.random() + 1) * 1000 * i)
     }
-    ext.delay.d=60;
+    ext.delay.d = 10;
 })()

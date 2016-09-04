@@ -37,20 +37,20 @@ var dbs = {
             ls.get("sina") || ls.set("sina", {});
             ext.ajax("http://m.weibo.cn/home/me?format=cards").then(
                 function (res) {
-                    res = JSON.parse(res.response)[0].card_group[0].user.id;
-                    iDB.init("sina", res, 1).then(function () {
-                        var f = ls.get("sina")[res];
+                    res = JSON.parse(res.response)[0].card_group[0].user;
+                    iDB.init("sina", res.id, 1).then(function () {
+                        var f = ls.get("sina")[res.id];
                         if (!f) {
                             f = {};
-                            f[res] = [1, false, Math.ceil(res.mblogNum / 10)];
+                            f[res.id] = [1, false, Math.ceil(res.mblogNum / 10)];
                             ls.put("sina", f);
-                            f = f[res];
+                            f = f[res.id];
                         }
-                        dbs.sina.get(res, f[0], f[2], f[1]);
+                        dbs.sina.get(res.id, f[0], f[2], f[1]);
                         f = ls.get("sina_cmts");
                         if (f && f[res] && f[res].length) {
                             f[res].forEach(i => setTimeout(function () {
-                                dbs.sina.cmtget(res, i)
+                                dbs.sina.cmtget(res.id, i)
                             }, ext.delay(1)));
 
                         }
@@ -196,35 +196,26 @@ var dbs = {
                 })
             }
         },
-        out: function (id) {
+        out: function (id,reg,...keys) {
             var usr = ls.get("sina")[id];
             if (usr) {
                 var dat = {
-                    usr: [id, usr[2], new Date().toJSON()],
-                    blogs: []
+                    usr: [id, usr[2], new Date().toJSON()]
                 };
-                iDB.obj("sina", dat.usr[0], "readonly").then(function (obj) {
-                    obj = obj.openCursor();
-                    var nxt = function (evt) {
-                        evt = evt.target.result;
-                        if (evt) {
-                            dat.blogs.push(evt.value);
-                            evt.continue();
-                            evt.onsuccess = nxt;
-                        } else {
-                            ext.tabs.create({
-                                url: "data:application/json," + JSON.stringify(dat)
-                            })
-                        }
-                    }
-                    obj.onsuccess = nxt;
+                iDB.getAll("sina", dat.usr[0],reg,keys).then(o => {
+                    dat.mblog = o;
+                    ext.tabs.create({
+                        url: "data:application/json," + JSON.stringify(dat)
+                    })
 
                 })
+
             } else {
                 console.log("Nothing...")
             }
         },
         img: function (id) {
+
             if (ls.get("sina")[id]) {
                 var dat = [];
                 iDB.obj("sina", id, "readonly").then(function (obj) {
@@ -249,6 +240,11 @@ var dbs = {
             } else {
                 console.log("Nothing...")
             }
+        },
+        clean: function (reg, ...keys) {
+            ext.tabs.query({ url: ["*://m.weibo.cn/*"] }, function (tabs) {
+                ext.tabs.sendMessage(tabs[0].id, ["do", reg, keys])
+            })
         }
     }
 };
@@ -306,6 +302,33 @@ var iDB = {
     del: function (dbnm, tb, keys) {
         iDB.obj(dbnm, tb, "readwrite").then(obj => { for (let i of iDB.d(data)) { obj.delete(i) } });
     },
+    getAll: function (dbnm, tb, reg, keys) {
+        return new Promise(function (thn, cth) {
+            var data = [];
+            reg = new RegExp(reg);
+            iDB.obj(dbnm, tb, "readonly").then(function (obj) {
+                obj = obj.openCursor();
+                var nxt = function (evt) {
+                    evt = evt.target.result;
+                    if (evt) {
+                        var f = true;
+                        if (keys.length) {
+                            var v = evt.value;
+                            keys.forEach(r => v = v ? v[r] : false)
+                            f = reg ? (v ? reg.test(v) : false) : v;
+                        }
+                        f && data.push(evt.value);
+                        evt.continue();
+                        evt.onsuccess = nxt;
+                    } else {
+                        thn(data)
+                    }
+                }
+                obj.onsuccess = nxt;
+
+            })
+        })
+    },
     get: function (dbnm, tb, keys) {
         return new Promise(function (thn, cth) {
             iDB.obj(dbnm, tb, "readonly").then(obj => {
@@ -333,6 +356,17 @@ var iDB = {
     }
 };
 
-(function () {
+ext.runtime.onMessage.addListener(function (msg, sender) {
+    switch (msg[0]) {
+        case "cleanAll":
+            iDB.getAll("sina", msg[3], msg[1], msg[2]).then(data =>
+                ext.tabs.sendMessage(sender.tab.id, ["cleanAll", data])
+            )
+            break;
+        default: console.table([msg, sender]);
+    }
+});
 
+(function () {
+//dbs.sina.clean("豆瓣","src")
 })();

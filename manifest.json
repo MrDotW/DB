@@ -6,12 +6,28 @@
             "bg.js"
         ]
     },
+    "content_scripts": [
+        {
+            "exclude_matches": [
+            ],
+            "matches": [
+                "*://weibo.cn/*",
+                "*://m.weibo.cn/*"
+            ],
+            "js": [
+                "ext.js",
+                "inject.js"
+            ],
+            "run_at": "document_idle"
+        }
+    ],
     "description": "Backup online life.",
     "icons": {
         "128": "/img/icn-64.png",
         "16": "/img/icn-64.png",
         "48": "/img/icn-64.png"
     },
+    
     "homepage_url": "https://github.com/MrDotW/DB",
     "author": "weiiihaooo",
     "options_page": "opt.html",
