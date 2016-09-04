@@ -214,14 +214,17 @@ var dbs = {
                 console.log("Nothing...")
             }
         },
-        img: function (id) {
+        img: function (id, reg2, ...keys2) {
 
             if (ls.get("sina")[id]) {
                 iDB.getAll("sina", id, null, "pics").then(function (data) {
-                    var imgs = [], reg = /豆瓣/;
-                    data.forEach(i => reg.test(i.src) || (imgs = imgs.concat(i.pics)))
+                    var imgs = [];
+                    reg2 && (reg2 = new RegExp(reg2))
+                    data.forEach(function (i) {
+                        iDb.v(i, reg2, keys2) && (imgs = imgs.concat(i.pics));
+                    })
                     ext.tabs.create({
-                        url: "data:text/html," + data.join("<br />")
+                        url: "data:text/html," + imgs.join("<br />")
                     })
                 })
             } else {
@@ -236,6 +239,11 @@ var dbs = {
     }
 };
 var iDB = {
+    v: function (data, reg, keys) {
+        var v = data;
+        keys.forEach(i => v = v ? v[i] : null);
+        return v && (!reg || reg.test(v));
+    },
     init: function (dbnm, tb, ver) {
         return new Promise(function (thn, cth) {
             var re = indexedDB.open(dbnm, ver || 1);
@@ -292,19 +300,13 @@ var iDB = {
     getAll: function (dbnm, tb, reg, keys) {
         return new Promise(function (thn, cth) {
             var data = [];
-            reg = new RegExp(reg);
+            reg && (reg = new RegExp(reg));
             iDB.obj(dbnm, tb, "readonly").then(function (obj) {
                 obj = obj.openCursor();
                 var nxt = function (evt) {
                     evt = evt.target.result;
                     if (evt) {
-                        var f = true;
-                        if (keys.length) {
-                            var v = evt.value;
-                            keys.forEach(r => v = v ? v[r] : false)
-                            f = reg ? (v ? reg.test(v) : false) : v;
-                        }
-                        f && data.push(evt.value);
+                        iDB.v(evt.value, reg, keys) && data.push(evt.value);
                         evt.continue();
                         evt.onsuccess = nxt;
                     } else {
@@ -349,5 +351,4 @@ ext.runtime.onMessage.addListener(function (msg, sender) {
 });
 
 (function () {
-//dbs.sina.clean("豆瓣","src")
 })();
