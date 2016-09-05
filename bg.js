@@ -235,6 +235,11 @@ var dbs = {
             ext.tabs.query({ url: ["*://m.weibo.cn/*"] }, function (tabs) {
                 ext.tabs.sendMessage(tabs[0].id, ["do", reg, keys])
             })
+        },
+        clnCmts: function () {
+            ext.tabs.query({ url: ["*://m.weibo.cn/*"] }, function (tabs) {
+                ext.tabs.sendMessage(tabs[0].id, ["cleanCmts"])
+            })
         }
     }
 };

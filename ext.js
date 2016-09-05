@@ -23,7 +23,7 @@ var ext;
             var xml = new XMLHttpRequest;
 
             xml.open(method, url);
-            
+
             type && (xml.responseType = type);
             xml.timeout = 15000;
             xml.ontimeout = function () {
@@ -44,19 +44,19 @@ var ext;
             }
             xml.onerror = function () {
 
-                localStorage.setItem(
-                    new Date().toJSON(),
-                    JSON.stringify(
-                        xml.status == 403
-                            ? url
-                            : (setTimeout(
-                                function () { ext.ajax(url, null, method, header, type, cnt) },
-                                ext.delay(1)
-                            ),
-                                xml.status)
-    )
-        )
-                //cth(xml)
+                // localStorage.setItem(
+                //     new Date().toJSON(),
+                //     JSON.stringify(
+                //         xml.status == 403
+                //             ? url
+                //             : (setTimeout(
+                //                 function () { ext.ajax(url, null, method, header, type, cnt) },
+                //                 ext.delay(1)
+                //             ),
+                //                 xml.status)
+                //     )
+                // )
+                cth(xml)
             };
             xml.send(method == "GET" ? null : cnt || null);
         })
@@ -65,5 +65,5 @@ var ext;
         i = (i || 1) * ext.delay.d;
         return Math.ceil((Math.random() + 1) * 1000 * i)
     }
-    ext.delay.d = 10;
+    ext.delay.d = 5;
 })()
