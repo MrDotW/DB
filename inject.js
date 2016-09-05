@@ -2,6 +2,7 @@
 
 
 (function () {
+    ext.delay.d = 2;
     ext.runtime.onMessage.addListener(function (msg) {
         switch (msg[0]) {
             case "do":
@@ -31,32 +32,37 @@
                     xml = xml.response;
                     if (xml) {
                         var cln = function (p, k) {
-                            (--p > ++k) && ext.ajax(`http://m.weibo.cn/msg/mycmts?subtype=myComent&format=cards&page=${k}`).then(function (xml) {
+                            (--p > k) && ext.ajax(`http://m.weibo.cn/msg/mycmts?subtype=myComent&format=cards&page=${k}`).then(function (xml) {
                                 xml = xml.response;
                                 if (xml) {
                                     xml = JSON.parse(xml)[0].card_group;
-                                    var j = xml.length;
-                                    if (j) {
-                                        xml.forEach(function (d, i) {
-                                            setTimeout(function () {
-                                                ext.ajax(
-                                                    "http://m.weibo.cn/commentDeal/cmtDel",
-                                                    null,
-                                                    "post",
-                                                    { "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8" },
-                                                    null,
-                                                    "cmtId=" + d.id
-                                                ).then(function () { --j || setTimeout(function () { cln(p, k) }, ext.delay(3)) })
-                                            }, ext.delay(i));
-                                        })
+                                    if (xml) {
+                                        var j = xml.length;
+                                        if (j) {
+                                            xml.forEach(function (d, i) {
+                                                setTimeout(function () {
+                                                    ext.ajax(
+                                                        "http://m.weibo.cn/commentDeal/cmtDel",
+                                                        null,
+                                                        "post",
+                                                        { "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8" },
+                                                        null,
+                                                        "cmtId=" + d.id
+                                                    ).then(function () { --j || setTimeout(function () { cln(p, k) }, ext.delay(3)) })
+                                                }, ext.delay(i));
+                                            })
+                                        } else {
+                                            setTimeout(function () { cln(p, ++k) }, ext.delay(1))
+                                        }
                                     } else {
-                                        setTimeout(function () { cln(p, k) }, ext.delay(1))
+                                        setTimeout(function () { cln(p, 200) }, ext.delay(2))
                                     }
+
                                 }
                             }, function (xml) { console.log(xml) }
                             )
                         }
-                        cln(JSON.parse(xml)[0].maxPage, 1)
+                        cln(JSON.parse(xml)[0].maxPage, 25)
                     }
                 });
                 break;

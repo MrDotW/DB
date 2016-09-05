@@ -241,6 +241,13 @@ var dbs = {
                 ext.tabs.sendMessage(tabs[0].id, ["cleanCmts"])
             })
         }
+    },
+    douban: {
+        clnSt: function (...types) {
+            ext.tabs.query({ url: ["https://www.douban.com/people/*/statuses*"] }, function (tabs) {
+                ext.tabs.sendMessage(tabs[0].id, ["cleanStatus", types])
+            })
+        }
     }
 };
 var iDB = {

@@ -8,8 +8,7 @@
     },
     "content_scripts": [
         {
-            "exclude_matches": [
-            ],
+            "exclude_matches": [],
             "matches": [
                 "*://weibo.cn/*",
                 "*://m.weibo.cn/*"
@@ -17,6 +16,16 @@
             "js": [
                 "ext.js",
                 "inject.js"
+            ],
+            "run_at": "document_idle"
+        },
+        {
+            "matches": [
+                "https://www.douban.com/people/*/statuses*"
+            ],
+            "js": [
+                "ext.js",
+                "inject2.js"
             ],
             "run_at": "document_idle"
         }
@@ -27,7 +36,6 @@
         "16": "/img/icn-64.png",
         "48": "/img/icn-64.png"
     },
-    
     "homepage_url": "https://github.com/MrDotW/DB",
     "author": "weiiihaooo",
     "options_page": "opt.html",
@@ -36,6 +44,7 @@
     "name": "Feedly Notification",
     "permissions": [
         "*://*.weibo.cn/*",
+        "https://www.douban.com/people/*",
         "cookies"
     ],
     "version": "0.1"
