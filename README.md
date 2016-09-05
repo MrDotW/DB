@@ -15,3 +15,5 @@
 `dbs.sina.img(userID, string RegExp, ...index)`
 4. Clean Weibo
 `dbs.sina.clean(string RegExp, ...index)`
+5. Clean comments
+`dbs.sina.clnCmts()`
