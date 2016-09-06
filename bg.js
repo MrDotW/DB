@@ -236,9 +236,9 @@ var dbs = {
                 ext.tabs.sendMessage(tabs[0].id, ["do", reg, keys])
             })
         },
-        clnCmts: function () {
+        clnCmts: function (i, j) {
             ext.tabs.query({ url: ["*://m.weibo.cn/*"] }, function (tabs) {
-                ext.tabs.sendMessage(tabs[0].id, ["cleanCmts"])
+                ext.tabs.sendMessage(tabs[0].id, ["cleanCmts", i, j])
             })
         }
     },

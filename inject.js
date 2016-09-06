@@ -28,6 +28,7 @@
                 })
                 break;
             case "cleanCmts":
+                msg[1] = msg[1] || 2; msg[2] = msg[2] || 50;
                 ext.ajax("http://m.weibo.cn/msg/mycmts?subtype=myComent&format=cards&page=1").then(function (xml) {
                     xml = xml.response;
                     if (xml) {
@@ -55,14 +56,14 @@
                                             setTimeout(function () { cln(p, ++k) }, ext.delay(1))
                                         }
                                     } else {
-                                        setTimeout(function () { cln(p, 200) }, ext.delay(2))
+                                        setTimeout(function () { cln(p - msg[2], msg[2]) }, ext.delay(2))
                                     }
 
                                 }
                             }, function (xml) { console.log(xml) }
                             )
                         }
-                        cln(JSON.parse(xml)[0].maxPage, 25)
+                        cln(JSON.parse(xml)[0].maxPage - msg[1], msg[1])
                     }
                 });
                 break;

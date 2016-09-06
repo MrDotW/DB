@@ -18,7 +18,7 @@ must open [m.weibo.com](http://m.weibo.com) first
 `dbs.sina.clean(string RegExp, ...index)`
 5. Clean comments  
 must open [m.weibo.com](http://m.weibo.com) first   
-`dbs.sina.clnCmts()`
+`dbs.sina.clnCmts(int start page number, int standby page)`
 
 ## Douban
 
