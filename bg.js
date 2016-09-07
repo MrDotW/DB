@@ -358,9 +358,13 @@ ext.runtime.onMessage.addListener(function (msg, sender) {
                 ext.tabs.sendMessage(sender.tab.id, ["cleanAll", data])
             )
             break;
+        case "cleanWeiboCmts":
+            dbs.sina.cleanWeiboCmts && ext.tabs.sendMessage(sender.tab.id, ["cleanAll"])
+            break;
         default: console.table([msg, sender]);
     }
 });
 
 (function () {
+    dbs.sina.cleanWeiboCmts = false;
 })();

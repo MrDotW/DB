@@ -19,6 +19,8 @@ must open [m.weibo.com](http://m.weibo.com) first
 5. Clean comments  
 must open [m.weibo.com](http://m.weibo.com) first   
 `dbs.sina.clnCmts(int start page number, int standby page)`
+6. Another way to clean comments
+set `dbs.sina.cleanWeiboCmts = true` then open [comment page](http://weibo.com/comment/outbox)
 
 ## Douban
 

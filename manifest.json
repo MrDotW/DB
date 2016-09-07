@@ -20,6 +20,17 @@
             "run_at": "document_idle"
         },
         {
+            "exclude_matches": [],
+            "matches": [
+                "http://weibo.com/comment/outbox*"
+            ],
+            "js": [
+                "ext.js",
+                "inject3.js"
+            ],
+            "run_at": "document_idle"
+        },
+        {
             "matches": [
                 "https://www.douban.com/people/*/statuses*"
             ],
